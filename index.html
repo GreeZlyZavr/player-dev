@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!--Import materialize.css-->
+  <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection" />
+  <!--Import style.css-->
+  <link type="text/css" rel="stylesheet" href="css/style.css" />
+
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8">
+  <title>TIGRA DEMO IMA VIDEO</title>
+</head>
+
+<body>
+  <br>
+  <br>
+  <br>
+  <div class="container">
+    <div class="container__in" >
+
+      <div class="p__wrap">
+        <div id="el-wrap" class="p_ima">
+          <div id="el-cont" class="p__cont">
+            <video id="el-video" class="p__video" playsinline muted>
+              <source src="video/video.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div id="el-ad" class="p__ad"></div>
+          <div id="countdownUi" class="countdownUi">Осталось:</div>
+          <div id="el-play" class="p__play">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px"
+              height="30px" viewBox="0 0 30 30" version="1.1">
+              <g id="surface1">
+                <path style=" stroke:none;fill-rule:nonzero; fill: #c5c5c5; fill-opacity:0.7;"
+                  d="M 6.375 0.660156 C 3.675781 -0.890625 1.484375 0.378906 1.484375 3.496094 L 1.484375 26.476562 C 1.484375 29.59375 3.675781 30.863281 6.375 29.3125 L 26.464844 17.792969 C 29.167969 16.242188 29.167969 13.730469 26.464844 12.179688 Z M 6.375 0.660156 " />
+              </g>
+            </svg>
+          </div>
+          <div id="el-pause" class="p__pause">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px"
+              height="30px" viewBox="0 0 30 30" version="1.1">
+              <g id="surface2">
+                <path style=" stroke:none;fill-rule:nonzero;fill: #c5c5c5;fill-opacity:0.7;"
+                  d="M 11.335938 25.820312 C 11.335938 28.128906 9.464844 30 7.160156 30 C 4.851562 30 2.980469 28.128906 2.980469 25.820312 L 2.980469 4.179688 C 2.980469 1.871094 4.851562 0 7.160156 0 C 9.464844 0 11.335938 1.871094 11.335938 4.179688 Z M 11.335938 25.820312 " />
+                <path style=" stroke:none;fill-rule:nonzero;fill:#c5c5c5;fill-opacity:0.7;"
+                  d="M 27.019531 25.820312 C 27.019531 28.128906 25.148438 30 22.839844 30 C 20.53125 30 18.664062 28.128906 18.664062 25.820312 L 18.664062 4.179688 C 18.664062 1.871094 20.535156 0 22.839844 0 C 25.148438 0 27.019531 1.871094 27.019531 4.179688 Z M 27.019531 25.820312 " />
+              </g>
+            </svg>
+          </div>
+
+          <div id="el-soundOff" class="p__soundOff">
+            <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+              x="0px" y="0px" viewBox="0 0 60 60" style="fill: #c5c5c5" xml:space="preserve">
+              <g>
+                <path d="M51.707,8.293c-0.391-0.391-1.023-0.391-1.414,0l-42,42c-0.391,0.391-0.391,1.023,0,1.414C8.488,51.902,8.744,52,9,52
+                      s0.512-0.098,0.707-0.293l42-42C52.098,9.316,52.098,8.684,51.707,8.293z"></path>
+                <path d="M52.841,10.561L42,21.402v27.491C42,50.606,40.606,52,38.893,52c-0.547,0-1.09-0.149-1.571-0.432
+                      c-0.063-0.037-0.121-0.081-0.174-0.131L24.106,39.296L10.561,52.841C15.982,57.469,22.795,60,30,60
+                      c8.013,0,15.547-3.121,21.213-8.787S60,38.013,60,30C60,22.795,57.469,15.982,52.841,10.561z">
+                </path>
+                <path d="M15.104,39C13.392,39,12,37.607,12,35.896V23.104C12,21.393,13.392,20,15.104,20h8.324c0.166,0,0.329-0.037,0.479-0.109
+                      L37.148,7.563c0.053-0.05,0.112-0.094,0.174-0.131C37.803,7.149,38.346,7,38.893,7C40.606,7,42,8.394,42,10.106v4.479l7.433-7.432
+                      C44.013,2.529,37.203,0,30,0C21.987,0,14.453,3.121,8.787,8.787C3.121,14.453,0,21.987,0,30c0,7.202,2.528,14.013,7.153,19.432
+                      L17.586,39H15.104z"></path>
+              </g>
+            </svg>
+          </div>
+          <div id="el-soundOn" class="p__soundOn">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px"
+              height="30px" viewBox="0 0 30 30" version="1.1">
+              <g id="surface3">
+                <path style=" stroke:none;fill-rule:nonzero;fill:#c5c5c5;fill-opacity:0.7;"
+                  d="M 25.605469 4.394531 C 19.742188 -1.464844 10.257812 -1.464844 4.394531 4.394531 C -1.464844 10.257812 -1.464844 19.742188 4.394531 25.605469 C 10.257812 31.464844 19.742188 31.464844 25.605469 25.605469 C 31.464844 19.742188 31.464844 10.257812 25.605469 4.394531 Z M 15.605469 21.257812 C 15.605469 22.257812 14.472656 22.839844 13.660156 22.257812 L 9.601562 19.359375 L 7.492188 19.359375 C 6.8125 19.359375 6.261719 18.808594 6.261719 18.128906 L 6.261719 11.871094 C 6.261719 11.191406 6.8125 10.640625 7.492188 10.640625 L 9.601562 10.640625 L 13.660156 7.742188 C 14.472656 7.160156 15.605469 7.742188 15.605469 8.742188 Z M 17.914062 19.769531 C 16.824219 19.769531 16.265625 18.445312 17.042969 17.667969 C 18.515625 16.191406 18.515625 13.804688 17.042969 12.332031 C 16.5625 11.851562 16.5625 11.070312 17.042969 10.589844 C 17.523438 10.109375 18.304688 10.109375 18.785156 10.589844 C 21.222656 13.027344 21.222656 16.972656 18.785156 19.410156 C 18.542969 19.652344 18.230469 19.769531 17.914062 19.769531 Z M 21.4375 22.066406 C 20.957031 22.546875 20.179688 22.546875 19.695312 22.066406 C 19.214844 21.582031 19.214844 20.804688 19.695312 20.324219 C 22.632812 17.386719 22.632812 12.613281 19.695312 9.675781 C 19.214844 9.195312 19.214844 8.417969 19.695312 7.933594 C 20.179688 7.453125 20.957031 7.453125 21.4375 7.933594 C 25.335938 11.832031 25.335938 18.167969 21.4375 22.066406 Z M 21.4375 22.066406 " />
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div id="Bar" class="Bar">
+        <div id="progressBar" class="progressBar">
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+    <!-- <div id="page-content" class="row content">
+          <div id="video-container" class="video_content col s12" >
+            <video id="video-element">
+              <source src="video/bank.mp4" type='video/mp4'></source>
+            </video>
+            <div id="ad-container"></div>
+            
+          </div>
+           <div class="row menuPosition">
+            <div class="col s12 center">
+              <a id="play-button" class="waves-effect waves-light btn"><i class="material-icons left">play_arrow</i>Play</a>
+              <a id="pause-button" class="waves-effect waves-light btn"><i class="material-icons left">pause</i>Pause</a>
+            </div>
+          </div> 
+          <div class="row menuPosition">
+            <div class="col s12 center">
+              <a id="play-button" class="waves-effect waves-light btn"><i class="material-icons left">play_arrow</i>Play</a>
+              <a id="pause-button" class="waves-effect waves-light btn"><i class="material-icons left">pause</i>Pause</a>
+            </div>
+          </div>
+            <div id="countdownUi">CountdownTimer</div>
+            <div id="Bar">
+              <div id="progressBar" class="progressBar" style="transform: translate(0%);">
+
+              </div>
+            </div> -->
+
+
+
+
+
+    <!-- <div id="mainContainer">
+          <div id="content">
+            <video id="contentElement">
+              <source src="https://s0.2mdn.net/4253510/google_ddm_animation_480P.mp4"></source>
+              <source src="https://s0.2mdn.net/4253510/google_ddm_animation_480P.webm"></source>
+            </video>
+          </div>
+          <div id="adContainer2"></div>
+        </div>
+        <button id="playButton">Play</button>
+        <div id="countdownUi2">CountdownTimer</div> -->
+  </div>
+  <!--Import jQuery before materialize.js-->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+  <script src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+  <script type="text/javascript" src="js/ads.js"></script>
+  <!-- <script type="text/javascript" src="js/test.js"></script> -->
+
+
+</body>
+
+</html>
