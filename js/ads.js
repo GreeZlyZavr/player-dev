@@ -10,6 +10,7 @@ let adDisplayContainer;
 let adsLoader;
 let adsManager;
 let countdownUi;
+let timePicker;
 
 window.addEventListener('load', function(event) {
 
@@ -17,33 +18,54 @@ window.addEventListener('load', function(event) {
   elPause = document.getElementById('el-pause');
   elSoundOn = document.getElementById('el-soundOn');
   elSoundOff = document.getElementById('el-soundOff');
+  timePicker = document.getElementById('timer');
+  videoTime = document.getElementById('videoTime');
 
   elVideo = document.getElementById('el-video');
   elVideo.volume = 0;
   elVideo.muted = true;
+  videoTime.setAttribute('max', elVideo.duration);
 
   initializeIMA();
   elVideo.addEventListener('play', function(event) {
     loadAds(event);
   });
 
-  // playButton.addEventListener('click', function(event) {
-  //   if(elVideo.paused) {
-  //       elVideo.play();
-  //       document.getElementById('el-pause').style.display="block";
-  //       document.getElementById('el-play').style.display="none";
-  //     } 
-  // });
-  // pauseButton.addEventListener('click', function(event) {
-  //   if(elVideo.paused == false) {
-  //       elVideo.pause();
-  //       document.getElementById('el-play').style.display="block";
-  //       document.getElementById('el-pause').style.display="none";
-  //     }
-  // });
 
 
-
+  elVideo.addEventListener('timeupdate', function () {
+    timePicker.innerHTML = secondsToTime(elVideo.currentTime);
+  }, false);
+  
+// рассчет отображаемого времени
+function secondsToTime(time){
+   
+  var h = Math.floor(time / (60 * 60)),
+      dm = time % (60 * 60),
+      m = Math.floor(dm / 60),
+      ds = dm % 60,
+      s = Math.ceil(ds);
+  if (s === 60) {
+      s = 0;
+      m = m + 1;
+  }
+  if (s < 10) {
+      s = '0' + s;
+  }
+  if (m === 60) {
+      m = 0;
+      h = h + 1;
+  }
+  if (m < 10) {
+      m = '0' + m;
+  }
+  if (h === 0) {
+      fulltime = m + ':' + s;
+  } else {
+      fulltime = h + ':' + m + ':' + s;
+  }
+  return fulltime;
+}
 
   elSoundOn.addEventListener('click', () => mute());
 
@@ -67,6 +89,7 @@ window.addEventListener('resize', function(event) {
 });
 
 function initializeIMA() {
+  
   console.log("initializing IMA");
   adContainer = document.getElementById('el-ad');//ad-container
   countdownUi = document.getElementById('countdownUi');
@@ -94,7 +117,7 @@ function initializeIMA() {
   // adsRequest.adTagUrl = 'https://dsp-eu.surfy.tech/vast?id=FROgrVIXqYrhUZRexwWeKehfUQvSVAWc&w=640&h=360';
   // adsRequest.adTagUrl = 'https://dsp-eu.surfy.tech/bid/vast-container?ssp=6';
   // adsRequest.adTagUrl = 'https://clientside-video-bidder.rutarget.ru/bid?url={domain}&request_id={bidid}&placement_id=113&mimes=video%2Fmp4&mimes=application%2Fjavascript&protocols=2&vd_api_0=VPAID_2_0&placement=3';
-  adsRequest.adTagUrl = 'https://kinoaction.ru/index.php?r=vast%2Fvpaid&id=1332';
+  // adsRequest.adTagUrl = 'https://kinoaction.ru/index.php?r=vast%2Fvpaid&id=1332';
   // adsRequest.adTagUrl = 'http://dsp-eu.surfy.tech/bid/vast-container?ssp=6';
   // adsRequest.adTagUrl = 'https://kinoaction.ru/index.php?ch=notCh&r=vast%2Flinkvpaid&type=vpaid&url_ref&link_id=37595';
 
@@ -136,6 +159,7 @@ function loadAds(event) {
 
   try {
     adsManager.init(width, height, google.ima.ViewMode.NORMAL);
+    console.log("AdsManager started");
     adsManager.start();
   } catch (adError) {
     // Play the video without ads, if an error occurs
@@ -176,6 +200,8 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
 } catch (adError) {
     // An error may be thrown if there was a problem with the VAST response.
     elVideo.play();
+    elPlay.style.display = 'none';
+    elPause.style.display = 'block';
 }
 }
 
@@ -234,16 +260,20 @@ function onAdEvent(adEvent) {
           if (ad.isLinear()) {
               // For a linear ad, a timer can be started to poll for
               // the remaining time.
+              elPlay.style.display = 'none';
+              elPause.style.display = 'none';
+              elSoundOff.style.display = 'none';
+              elSoundOn.style.display = 'none';
               intervalTimer = setInterval(
                 function() {
                       let remainingTime = adsManager.getRemainingTime();
-                      let adDuration = ad.getDuration();
-                      let theTime = Math.round((1 - ( parseInt(remainingTime) / adDuration)) * 100); 
-                      console.log(theTime);
-                      let txt = 'transform: translate(' + theTime + '%); ';
-                      txt += '-webkit-transform: translate(' + theTime + '%); ';
-                      txt += '-o-transform: translate(' + theTime + '%); '; 
-                      progressBar.style.cssText = txt;
+                      // let adDuration = ad.getDuration();
+                      // let theTime = Math.round((1 - ( parseInt(remainingTime) / adDuration)) * 100); 
+                      // console.log(theTime);
+                      // let txt = 'transform: translate(' + theTime + '%); ';
+                      // txt += '-webkit-transform: translate(' + theTime + '%); ';
+                      // txt += '-o-transform: translate(' + theTime + '%); '; 
+                      // progressBar.style.cssText = txt;
                       countdownUi.innerHTML = 'Осталось: ' + parseInt(remainingTime);
                           
                   },
@@ -254,6 +284,10 @@ function onAdEvent(adEvent) {
       case google.ima.AdEvent.Type.COMPLETE:
           // Этот ивент говорит о завершении рекламы 
           // можно удалить элементы рекламы 
+          elPlay.style.display = 'none';
+          elPause.style.display = 'block';
+          elSoundOff.style.display = 'block';
+          elSoundOn.style.display = 'none';
           if (ad.isLinear()) {
               clearInterval(intervalTimer);
           }
@@ -263,52 +297,49 @@ function onAdEvent(adEvent) {
 
 // Элементы управления вастом
 
-function muteAd() {
-  adsManager.setVolume(0);
-  // elVideo.setVolume(0);
+// function muteAd() {
+//   adsManager.setVolume(0);
+//   // elVideo.setVolume(0);
   
 
-  elVideo.volume = 0;
-  elVideo.muted = true;
-  elSoundOff.style.display = 'block';
-  elSoundOn.style.display = 'none';
-};
+//   elVideo.volume = 0;
+//   elVideo.muted = true;
+//   elSoundOff.style.display = 'block';
+//   elSoundOn.style.display = 'none';
+// };
 
-function unmuteAd() {
-  adsManager.setVolume(1);
-  // elVideo.setVolume(1);
+// function unmuteAd() {
+//   adsManager.setVolume(1);
+//   // elVideo.setVolume(1);
 
-  elVideo.volume = 1;
-  elVideo.muted = false;
-  elSoundOff.style.display = 'none';
-  elSoundOn.style.display = 'block';
-};
+//   elVideo.volume = 1;
+//   elVideo.muted = false;
+//   elSoundOff.style.display = 'none';
+//   elSoundOn.style.display = 'block';
+// };
 
-function playAd() {
-  elVideo.volume = 1;
-  elVideo.muted = false;
-  adsManager.resume();
-  // elVideo.play();
-  elPlay.style.display = 'none';
-  elPause.style.display = 'block';
-};
+// function playAd() {
+//   // elVideo.volume = 1;
+//   // elVideo.muted = false;
+//   adsManager.resume();
+//   // elVideo.play();
+//   elPlay.style.display = 'none';
+//   elPause.style.display = 'block';
+// };
 
-function pauseAd() {
-  elVideo.volume = 0;
-  elVideo.muted = false;
-  adsManager.pause();
-  // elVideo.pause();
-  elPlay.style.display = 'block';
-  elPause.style.display = 'none';
-};
+// function pauseAd() {
+//   // elVideo.volume = 0;
+//   // elVideo.muted = false;
+//   adsManager.pause();
+//   // elVideo.pause();
+//   elPlay.style.display = 'block';
+//   elPause.style.display = 'none';
+// };
 
 // Элементы управления видео
 
 function mute() {
-  // adsManager.setVolume(0);
-  elVideo.setVolume(0);
-  
-
+  // adsManager.setVolume(0); 
   elVideo.volume = 0;
   elVideo.muted = true;
   elSoundOff.style.display = 'block';
@@ -317,8 +348,6 @@ function mute() {
 
 function unmute() {
   // adsManager.setVolume(1);
-  elVideo.setVolume(1);
-
   elVideo.volume = 1;
   elVideo.muted = false;
   elSoundOff.style.display = 'none';
@@ -326,8 +355,6 @@ function unmute() {
 };
 
 function play() {
-  elVideo.volume = 1;
-  elVideo.muted = false;
   // adsManager.resume();
   elVideo.play();
   elPlay.style.display = 'none';
@@ -335,10 +362,9 @@ function play() {
 };
 
 function pause() {
-  elVideo.volume = 0;
-  elVideo.muted = false;
   // adsManager.pause();
   elVideo.pause();
   elPlay.style.display = 'block';
   elPause.style.display = 'none';
 };
+
