@@ -11,6 +11,7 @@ let adsLoader;
 let adsManager;
 let countdownUi;
 let timePicker;
+let videoTime;
 
 window.addEventListener('load', function(event) {
 
@@ -24,57 +25,77 @@ window.addEventListener('load', function(event) {
   elVideo = document.getElementById('el-video');
   elVideo.volume = 0;
   elVideo.muted = true;
-  videoTime.setAttribute('max', elVideo.duration);
+  
 
   initializeIMA();
   elVideo.addEventListener('play', function(event) {
     loadAds(event);
   });
 
+  // событие срабатывает, когда видео готово к воспроизведению
+  elVideo.addEventListener('canplay', function() {
+    videoTime.setAttribute('max', elVideo.duration);
+  });
 
-
+  // событие срабатывает, когда изменяется время видео
   elVideo.addEventListener('timeupdate', function () {
     timePicker.innerHTML = secondsToTime(elVideo.currentTime);
+    videoTime.setAttribute('value', elVideo.currentTime);
   }, false);
-  
-// рассчет отображаемого времени
-function secondsToTime(time){
-   
-  var h = Math.floor(time / (60 * 60)),
-      dm = time % (60 * 60),
-      m = Math.floor(dm / 60),
-      ds = dm % 60,
-      s = Math.ceil(ds);
-  if (s === 60) {
-      s = 0;
-      m = m + 1;
+
+  // событие срабатывает, когда меняется время воспроизведения
+  elVideo.addEventListener('seeking', function () {
+    
+  });
+  // событие срабатывает, когда передвигается ползунок videoTime
+  videoTime.addEventListener('onSlide', function () {
+    elVideo.pause();
+  });
+  // событие срабатывает, когда ползунок videoTime передвинут
+  videoTime.addEventListener('onChange', function () {
+    elVideo.currentTime = videoTime.getAttribute('value');
+    console.log(videoTime.getAttribute('value'));
+    elVideo.play();
+  });
+
+
+  // рассчет отображаемого времени
+  function secondsToTime(time){
+    
+    var h = Math.floor(time / (60 * 60)),
+        dm = time % (60 * 60),
+        m = Math.floor(dm / 60),
+        ds = dm % 60,
+        s = Math.ceil(ds);
+    if (s === 60) {
+        s = 0;
+        m = m + 1;
+    }
+    if (s < 10) {
+        s = '0' + s;
+    }
+    if (m === 60) {
+        m = 0;
+        h = h + 1;
+    }
+    if (m < 10) {
+        m = '0' + m;
+    }
+    if (h === 0) {
+        fulltime = m + ':' + s;
+    } else {
+        fulltime = h + ':' + m + ':' + s;
+    }
+    return fulltime;
   }
-  if (s < 10) {
-      s = '0' + s;
-  }
-  if (m === 60) {
-      m = 0;
-      h = h + 1;
-  }
-  if (m < 10) {
-      m = '0' + m;
-  }
-  if (h === 0) {
-      fulltime = m + ':' + s;
-  } else {
-      fulltime = h + ':' + m + ':' + s;
-  }
-  return fulltime;
-}
+
+
+
+
 
   elSoundOn.addEventListener('click', () => mute());
-
-  
   elSoundOff.addEventListener('click', () => unmute());
-
-
   elPlay.addEventListener('click', () => play());
-
   elPause.addEventListener('click', () => pause());
 
 });
