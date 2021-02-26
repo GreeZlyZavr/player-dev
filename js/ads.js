@@ -10,8 +10,10 @@ let adDisplayContainer;
 let adsLoader;
 let adsManager;
 let countdownUi;
-let timePicker;
 let videoTime;
+let duration;
+let videoTrack; 
+let timeLine;
 
 window.addEventListener('load', function(event) {
 
@@ -21,11 +23,12 @@ window.addEventListener('load', function(event) {
   elSoundOff = document.getElementById('el-soundOff');
   timePicker = document.getElementById('timer');
   videoTime = document.getElementById('videoTime');
-
   elVideo = document.getElementById('el-video');
   elVideo.volume = 0;
   elVideo.muted = true;
-  
+  duration = document.getElementById('duration');
+  videoTrack = document.querySelector(".videoTrack"); // Получаем элемент Видеодорожки
+  timeLine = document.querySelector(".timeLine"); 
 
   initializeIMA();
   elVideo.addEventListener('play', function(event) {
@@ -34,30 +37,23 @@ window.addEventListener('load', function(event) {
 
   // событие срабатывает, когда видео готово к воспроизведению
   elVideo.addEventListener('canplay', function() {
-    videoTime.setAttribute('max', elVideo.duration);
+    duration.innerHTML =  secondsToTime(elVideo.duration);
   });
 
   // событие срабатывает, когда изменяется время видео
   elVideo.addEventListener('timeupdate', function () {
     timePicker.innerHTML = secondsToTime(elVideo.currentTime);
-    videoTime.setAttribute('value', elVideo.currentTime);
+    timeLine.style.width = (parseInt(elVideo.currentTime) / parseInt(elVideo.duration)) * 100 + '%';
   }, false);
 
-  // событие срабатывает, когда меняется время воспроизведения
-  elVideo.addEventListener('seeking', function () {
-    
-  });
-  // событие срабатывает, когда передвигается ползунок videoTime
-  videoTime.addEventListener('onSlide', function () {
-    elVideo.pause();
-  });
-  // событие срабатывает, когда ползунок videoTime передвинут
-  videoTime.addEventListener('onChange', function () {
-    elVideo.currentTime = videoTime.getAttribute('value');
-    console.log(videoTime.getAttribute('value'));
-    elVideo.play();
-  });
 
+
+  videoTrack.addEventListener("click", function(e) {
+    let posX = e.clientX - 8; // Вычисляем позицию нажатия
+    let timePos = (posX * 100) / parseInt(elVideo.offsetWidth); // Вычисляем процент перемотки
+    timeLine.style.width = timePos + '%'; // Присваиваем процент перемотки
+    elVideo.currentTime = (timePos * Math.round(elVideo.duration)) / 100; // Перематываем
+});
 
   // рассчет отображаемого времени
   function secondsToTime(time){
@@ -216,13 +212,13 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
     // Call play to start showing the ad. Single video and overlay ads will
     // start at this time; the call will be ignored for ad rules.
     elPlay.style.display = 'none';
-    elPause.style.display = 'block';
+    elPause.style.display = 'flex';
     adsManager.start();
 } catch (adError) {
     // An error may be thrown if there was a problem with the VAST response.
     elVideo.play();
     elPlay.style.display = 'none';
-    elPause.style.display = 'block';
+    elPause.style.display = 'flex';
 }
 }
 
@@ -285,6 +281,7 @@ function onAdEvent(adEvent) {
               elPause.style.display = 'none';
               elSoundOff.style.display = 'none';
               elSoundOn.style.display = 'none';
+              countdownUi.style.display = 'flex';
               intervalTimer = setInterval(
                 function() {
                       let remainingTime = adsManager.getRemainingTime();
@@ -306,9 +303,10 @@ function onAdEvent(adEvent) {
           // Этот ивент говорит о завершении рекламы 
           // можно удалить элементы рекламы 
           elPlay.style.display = 'none';
-          elPause.style.display = 'block';
-          elSoundOff.style.display = 'block';
+          elPause.style.display = 'flex';
+          elSoundOff.style.display = 'flex';
           elSoundOn.style.display = 'none';
+          countdownUi.style.display = 'none';
           if (ad.isLinear()) {
               clearInterval(intervalTimer);
           }
@@ -325,7 +323,7 @@ function onAdEvent(adEvent) {
 
 //   elVideo.volume = 0;
 //   elVideo.muted = true;
-//   elSoundOff.style.display = 'block';
+//   elSoundOff.style.display = 'flex';
 //   elSoundOn.style.display = 'none';
 // };
 
@@ -336,7 +334,7 @@ function onAdEvent(adEvent) {
 //   elVideo.volume = 1;
 //   elVideo.muted = false;
 //   elSoundOff.style.display = 'none';
-//   elSoundOn.style.display = 'block';
+//   elSoundOn.style.display = 'flex';
 // };
 
 // function playAd() {
@@ -345,7 +343,7 @@ function onAdEvent(adEvent) {
 //   adsManager.resume();
 //   // elVideo.play();
 //   elPlay.style.display = 'none';
-//   elPause.style.display = 'block';
+//   elPause.style.display = 'flex';
 // };
 
 // function pauseAd() {
@@ -353,7 +351,7 @@ function onAdEvent(adEvent) {
 //   // elVideo.muted = false;
 //   adsManager.pause();
 //   // elVideo.pause();
-//   elPlay.style.display = 'block';
+//   elPlay.style.display = 'flex';
 //   elPause.style.display = 'none';
 // };
 
@@ -363,7 +361,7 @@ function mute() {
   // adsManager.setVolume(0); 
   elVideo.volume = 0;
   elVideo.muted = true;
-  elSoundOff.style.display = 'block';
+  elSoundOff.style.display = 'flex';
   elSoundOn.style.display = 'none';
 };
 
@@ -372,20 +370,20 @@ function unmute() {
   elVideo.volume = 1;
   elVideo.muted = false;
   elSoundOff.style.display = 'none';
-  elSoundOn.style.display = 'block';
+  elSoundOn.style.display = 'flex';
 };
 
 function play() {
   // adsManager.resume();
   elVideo.play();
   elPlay.style.display = 'none';
-  elPause.style.display = 'block';
+  elPause.style.display = 'flex';
 };
 
 function pause() {
   // adsManager.pause();
   elVideo.pause();
-  elPlay.style.display = 'block';
+  elPlay.style.display = 'flex';
   elPause.style.display = 'none';
 };
 
