@@ -22,7 +22,7 @@
 ### [Начало](#Beginning)
 Основным рабочим файлом является ads.js в папке js. Для воспроизведения рекламы используется GOOGLE IMA SDK.
 
-### [Управление плеером](#playerControl)
+### <a name="#playerControl">Управление плеером</a>
 Основной обработчик событий window.addEventListener('load', function (event) {});. В нем содержатся обработчики, связанные с визуальным представлением плеера и обьявления элементов управления. 
 
 ```js
@@ -70,7 +70,7 @@ window.addEventListener('load', function (event) {
 });
 ```
 
-### [Функции управления видео-контентом](#playerControlFunctions)
+### <a name="#playerControlFunctions">Функции управления видео-контентом</a>
 Простые функции монипулирования видео-контентом: play, pause, mute, unmute.
 ```js
 function mute() {
