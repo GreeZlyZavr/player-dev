@@ -1,4 +1,3 @@
-// Define a variable to track whether there are ads loaded and initially set it to false
 let elVideo;
 let elPlay;
 let elPause;
@@ -9,43 +8,73 @@ let adContainer;
 let adDisplayContainer;
 let adsLoader;
 let adsManager;
+let adsRequest;
 let countdownUi;
 let duration;
 let timeFull;
 let timeLine;
 let controls;
+let logoIcon;
 
+// ------ ЭЛЕМЕНТЫ УПРАВЛЕНИЯ ПЛЕЕРА ------
+
+// Событие срабатывает при полной загрузке страницы
 window.addEventListener('load', function (event) {
 
-  elPlay = document.getElementById('el-play'); // кнопка play
-  elPause = document.getElementById('el-pause'); // кнопка pause
-  elSoundOn = document.getElementById('el-soundOn'); // кнопка mute
-  elSoundOff = document.getElementById('el-soundOff'); // кнопка unmute
-  timePicker = document.getElementById('timer');
-  elVideo = document.getElementById('el-video');
-  duration = document.getElementById('duration');
-  timeFull = document.querySelector('.timeFull');
-  timeLine = document.querySelector('.timeLine');
-  panelControls = document.querySelector('.panelControls');
+  elPlay = document.getElementById('el-play'); // Кнопка play
+  elPause = document.getElementById('el-pause'); // Кнопка pause
+  elSoundOn = document.getElementById('el-soundOn'); // Кнопка mute
+  elSoundOff = document.getElementById('el-soundOff'); // Кнопка unmute
+  timePicker = document.getElementById('timer'); // Отображает текущее время проигрования
+  elVideo = document.getElementById('el-video'); // Место размещения основного видео
+  duration = document.getElementById('duration'); // Полное время отображения времени
+  timeFull = document.querySelector('.timeFull'); // Полная полоса прогресса видео
+  timeLine = document.querySelector('.timeLine'); // Полоса текущего времени видео
+  panelControls = document.querySelector('.panelControls'); // Панель со всеми кнопками
+  logoIcon = document.getElementById('el-logoIcon');
 
   initializeIMA();
   elVideo.addEventListener('play', function (event) {
     loadAds(event);
   });
 
-  // событие срабатывает, когда видео готово к воспроизведению
+  // Событие срабатывает, когда видео готово к воспроизведению
   elVideo.addEventListener('canplay', function () {
+    // Добавляем продолжительность видео контента
     duration.innerHTML = secondsToTime(elVideo.duration);
   });
 
-  // событие срабатывает, когда изменяется время видео
+  // Событие срабатывает, когда изменяется текущее время видео
   elVideo.addEventListener('timeupdate', function () {
+    // Делаем подвижной полосу текущего времени видео
     timePicker.innerHTML = secondsToTime(elVideo.currentTime);
     timeLine.style.width = (parseInt(elVideo.currentTime) / parseInt(elVideo.duration)) * 100 + '%';
   }, false);
 
+  // События для кнопок упраления
+  elSoundOn.addEventListener('click', () => mute());
+  elSoundOff.addEventListener('click', () => unmute());
+  elPlay.addEventListener('click', () => play());
+  elPause.addEventListener('click', () => pause());
 
+  
+  // событие срабатывает, когда изменяется размер окна
+  // !!! НЕГОТОВАЯ ЧАСТЬ КОДА !!!
+  // -- начало
+/*
+  window.addEventListener('resize', function (event) {
+    console.log("window resized");
+    console.log(adsManager);
+    if (adsManager) {
+      // изменение размера видео
+      let width = elVideo.clientWidth;
+      let height = elVideo.clientHeight;
+      adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
+    }
+  });
 
+  // событие срабатывает при клике на полосу проигрования
+ 
   timeFull.addEventListener("click", function (e) {
     let posClientX = e.clientX; // Вычисляем позицию нажатия
     let posBlockX = timeLine.clientX;
@@ -64,261 +93,13 @@ window.addEventListener('load', function (event) {
     // console.log('timePos * Math.round(elVideo.duration): '+ timePos * Math.round(elVideo.duration));
     elVideo.currentTime = (timePos / 100 * Math.round(elVideo.duration)) ; // Перематываем
   });
+    */
 
-  // рассчет отображаемого времени
-  function secondsToTime(time) {
-
-    var h = Math.floor(time / (60 * 60)),
-      dm = time % (60 * 60),
-      m = Math.floor(dm / 60),
-      ds = dm % 60,
-      s = Math.ceil(ds);
-    if (s === 60) {
-      s = 0;
-      m = m + 1;
-    }
-    if (s < 10) {
-      s = '0' + s;
-    }
-    if (m === 60) {
-      m = 0;
-      h = h + 1;
-    }
-    if (m < 10) {
-      m = '0' + m;
-    }
-    if (h === 0) {
-      fulltime = m + ':' + s;
-    } else {
-      fulltime = h + ':' + m + ':' + s;
-    }
-    return fulltime;
-  }
+   // -- конец --
 
 
-
-
-
-  elSoundOn.addEventListener('click', () => mute());
-  elSoundOff.addEventListener('click', () => unmute());
-  elPlay.addEventListener('click', () => play());
-  elPause.addEventListener('click', () => pause());
 
 });
-
-window.addEventListener('resize', function (event) {
-  console.log("window resized");
-  console.log(adsManager);
-  if (adsManager) {
-    let width = elVideo.clientWidth;
-    let height = elVideo.clientHeight;
-    adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
-  }
-});
-
-function initializeIMA() {
-
-  console.log("initializing IMA");
-  adContainer = document.getElementById('el-ad'); //ad-container
-  countdownUi = document.getElementById('countdownUi');
-  progressBar = document.getElementById('progressBar');
-  adContainer.addEventListener('click', adContainerClick);
-  adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, elVideo);
-  let adsLoader = new google.ima.AdsLoader(adDisplayContainer);
-  adsLoader.addEventListener(
-    google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
-    onAdsManagerLoaded,
-    false);
-  adsLoader.addEventListener(
-    google.ima.AdErrorEvent.Type.AD_ERROR,
-    onAdError,
-    false);
-
-  // Let the AdsLoader know when the video has ended
-  elVideo.addEventListener('ended', function () {
-    adsLoader.contentComplete();
-  });
-
-  let adsRequest = new google.ima.AdsRequest();
-  // adsRequest.adTagUrl = 'https://dsp-eu.surfy.tech/bid/vast-container?ssp=26';
-  // adsRequest.adTagUrl = 'https://dsp-eu.surfy.tech/bid/vast-container?ssp=44';
-  // adsRequest.adTagUrl = 'https://dsp-eu.surfy.tech/vast?id=FROgrVIXqYrhUZRexwWeKehfUQvSVAWc&w=640&h=360';
-  // adsRequest.adTagUrl = 'https://dsp-eu.surfy.tech/bid/vast-container?ssp=6';
-  // adsRequest.adTagUrl = 'https://clientside-video-bidder.rutarget.ru/bid?url={domain}&request_id={bidid}&placement_id=113&mimes=video%2Fmp4&mimes=application%2Fjavascript&protocols=2&vd_api_0=VPAID_2_0&placement=3';
-  // adsRequest.adTagUrl = 'https://kinoaction.ru/index.php?r=vast%2Fvpaid&id=1332';
-  // adsRequest.adTagUrl = 'http://dsp-eu.surfy.tech/bid/vast-container?ssp=6';
-  // adsRequest.adTagUrl = 'https://kinoaction.ru/index.php?ch=notCh&r=vast%2Flinkvpaid&type=vpaid&url_ref&link_id=37595';
-
-  // Specify the linear and nonlinear slot sizes. This helps the SDK to
-  // select the correct creative if multiple are returned.
-  adsRequest.linearAdSlotWidth = elVideo.clientWidth;
-  adsRequest.linearAdSlotHeight = elVideo.clientHeight;
-  adsRequest.nonLinearAdSlotWidth = elVideo.clientWidth;
-  adsRequest.nonLinearAdSlotHeight = elVideo.clientHeight / 3;
-
-  // Pass the request to the adsLoader to request ads
-  adsLoader.requestAds(adsRequest);
-
-}
-
-function loadAds(event) {
-  // Prevent this function from running on if there are already ads loaded
-  if (adsLoaded) {
-    return;
-  }
-  adsLoaded = true;
-
-  // Prevent triggering immediate playback when ads are loading
-  event.preventDefault();
-
-  console.log("loading ads");
-
-  // Initialize the container. Must be done via a user action on mobile devices.
-  elVideo.load();
-  adDisplayContainer.initialize();
-
-  let width = elVideo.clientWidth;
-  let height = elVideo.clientHeight;
-  console.log(width);
-  console.log(height);
-  // adsManager.init(width, height, google.ima.ViewMode.NORMAL);
-  // adsManager.start();
-
-
-  try {
-    adsManager.init(width, height, google.ima.ViewMode.NORMAL);
-    console.log("AdsManager started");
-    adsManager.start();
-  } catch (adError) {
-    // Play the video without ads, if an error occurs
-    console.log("AdsManager could not be started");
-    elVideo.play();
-  }
-}
-
-function onAdsManagerLoaded(adsManagerLoadedEvent) {
-  let adsRenderingSettings = new google.ima.AdsRenderingSettings();
-  adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = true;
-
-  // Instantiate the AdsManager from the adsLoader response and pass it the video element
-  adsManager = adsManagerLoadedEvent.getAdsManager(elVideo, adsRenderingSettings);
-
-  adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
-
-  adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, onContentPauseRequested);
-
-  adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, onContentResumeRequested);
-
-  adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAdEvent);
-
-  adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, onAdEvent);
-
-  adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, onAdEvent);
-
-  adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, onAdEvent);
-
-  try {
-    // Initialize the ads manager. Ad rules playlist will start at this time.
-    adsManager.init(640, 360, google.ima.ViewMode.NORMAL);
-    // Call play to start showing the ad. Single video and overlay ads will
-    // start at this time; the call will be ignored for ad rules.
-    panelControls.style.display = 'none';
-    adsManager.start();
-  } catch (adError) {
-    // An error may be thrown if there was a problem with the VAST response.
-    elVideo.play();
-    elPlay.style.display = 'none';
-    elPause.style.display = 'flex';
-  }
-}
-
-function onAdError(adErrorEvent) {
-  // Handle the error logging.
-  console.log(adErrorEvent.getError());
-  if (adsManager) {
-    adsManager.destroy();
-  }
-
-}
-
-function onContentPauseRequested() {
-  elVideo.pause();
-}
-
-function onContentResumeRequested() {
-  elVideo.play();
-}
-
-function adContainerClick(event) {
-  console.log("ad container clicked");
-  if (elVideo.paused) {
-    elVideo.play();
-  } else {
-    elVideo.pause();
-  }
-}
-
-
-
-
-function onAdEvent(adEvent) {
-  // Извлеките объявление из события. Некоторые события (например, ALL_ADS_COMPLETED) не связаны с объектом ad.
-  let ad = adEvent.getAd();
-  switch (adEvent.type) {
-    case google.ima.AdEvent.Type.LOADED:
-      // Это первое событие, отправленное для объявления - можно определить, является ли объявление видеорекламой или overlay.
-      if (!ad.isLinear()) {
-        // Правильно расположите AdDisplayContainer для наложения.
-        // Использовать ad.width и ad.height.
-        elVideo.play();
-      }
-      break;
-    case google.ima.AdEvent.Type.STARTED:
-      // Этот ивент говорит о начале рекламы - 
-      // видеоплеер может настроить пользовательский интерфейс, 
-      // например отобразить кнопку паузы и оставшееся время.
-      if (ad.isLinear()) {
-        // For a linear ad, a timer can be started to poll for
-        // the remaining time.
-        elPlay.style.display = 'none';
-        elPause.style.display = 'none';
-        elSoundOff.style.display = 'none';
-        elSoundOn.style.display = 'none';
-        countdownUi.style.display = 'flex';
-        intervalTimer = setInterval(
-          function () {
-            let remainingTime = adsManager.getRemainingTime();
-            // let adDuration = ad.getDuration();
-            // let theTime = Math.round((1 - ( parseInt(remainingTime) / adDuration)) * 100); 
-            // console.log(theTime);
-            // let txt = 'transform: translate(' + theTime + '%); ';
-            // txt += '-webkit-transform: translate(' + theTime + '%); ';
-            // txt += '-o-transform: translate(' + theTime + '%); '; 
-            // progressBar.style.cssText = txt;
-            countdownUi.innerHTML = 'Осталось: ' + parseInt(remainingTime);
-
-          },
-          300);
-
-      }
-      break;
-    case google.ima.AdEvent.Type.COMPLETE:
-      // Этот ивент говорит о завершении рекламы 
-      // можно удалить элементы рекламы 
-      elPlay.style.display = 'none';
-      elPause.style.display = 'flex';
-      elSoundOff.style.display = 'flex';
-      elSoundOn.style.display = 'none';
-      countdownUi.style.display = 'none';
-      panelControls.style.display = 'flex';
-      if (ad.isLinear()) {
-        clearInterval(intervalTimer);
-      }
-      break;
-  }
-}
-
-
 
 // Элементы управления видео
 
@@ -351,3 +132,215 @@ function pause() {
   elPlay.style.display = 'flex';
   elPause.style.display = 'none';
 };
+
+  // Рассчет отображаемого времени
+  function secondsToTime(time) {
+
+    var h = Math.floor(time / (60 * 60)),
+      dm = time % (60 * 60),
+      m = Math.floor(dm / 60),
+      ds = dm % 60,
+      s = Math.ceil(ds);
+    if (s === 60) {
+      s = 0;
+      m = m + 1;
+    }
+    if (s < 10) {
+      s = '0' + s;
+    }
+    if (m === 60) {
+      m = 0;
+      h = h + 1;
+    }
+    if (m < 10) {
+      m = '0' + m;
+    }
+    if (h === 0) {
+      fulltime = m + ':' + s;
+    } else {
+      fulltime = h + ':' + m + ':' + s;
+    }
+    return fulltime;
+  };
+
+  
+
+
+
+// ------ GOOGLE IMA SDK И РЕКЛАМА ------
+
+// метод инициализации Google IMA SDK
+function initializeIMA() {
+
+  console.log("initializing IMA");
+  adContainer = document.getElementById('el-ad'); // Контейнер для проигрывания рекламы
+  countdownUi = document.getElementById('countdownUi'); // Счетчик времени рекламы
+  adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, elVideo); // Контейнер, в котором будет отображаться реклама
+  adsLoader = new google.ima.AdsLoader(adDisplayContainer); // AdsLoader для запроса рекламы с серверов объявлений
+
+  // Обработчики AdsLoader
+  adsLoader.addEventListener(
+    google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+    onAdsManagerLoaded,
+    false);
+  adsLoader.addEventListener(
+    google.ima.AdErrorEvent.Type.AD_ERROR,
+    onAdError,
+    false);
+
+  // Сообщяем AdsLoader, когда видео закончится
+  elVideo.addEventListener('ended', function () {
+    adsLoader.contentComplete();
+  });
+
+  // Свойства запроса объявления
+  adsRequest = new google.ima.AdsRequest(); 
+
+  // URL-адрес рекламного тега, который запрашивается с рекламного сервера
+  adsRequest.adTagUrl = 'http://dsp-eu.surfy.tech/bid/vast-container?ssp=6';
+
+
+  // Указываем линейные и нелинейные размеры слотов.
+  adsRequest.linearAdSlotWidth = elVideo.clientWidth;
+  adsRequest.linearAdSlotHeight = elVideo.clientHeight;
+  adsRequest.nonLinearAdSlotWidth = elVideo.clientWidth;
+  adsRequest.nonLinearAdSlotHeight = elVideo.clientHeight / 3;
+
+  // Делаем контейнер кликабельным
+  adContainer.addEventListener('click', adContainerClick); 
+
+  // Передаем запрос в adsLoader для запроса рекламы
+  adsLoader.requestAds(adsRequest);
+
+}
+
+function loadAds(event) {
+  // Эта функция не работает, если уже загружены объявления
+  if (adsLoaded) {
+    return;
+  }
+  adsLoaded = true;
+
+  // Не запускаем немедленное воспроизведение при загрузке рекламы
+  // event.preventDefault(); ???
+  console.log("loading ads");
+
+  // Инициализируtv контейнер. !!! Должно быть сделано с помощью действия пользователя на мобильных устройствах !!!
+  elVideo.load();
+  adDisplayContainer.initialize();
+
+  let width = elVideo.clientWidth;
+  let height = elVideo.clientHeight;
+
+
+
+  try {
+    // Инициализируйте ads manager. В это время начнется плейлист рекламы по правилам ad rules.
+    adsManager.init(width, height, google.ima.ViewMode.NORMAL);  
+    console.log("AdsManager started");
+    // Play, чтобы начать показывать рекламу. В это время будут запущены одиночные видео-и оверлейные объявления; вызов будет проигнорирован для ad rules.
+    adsManager.start();
+  } catch (adError) {
+    // Воспроизведение видео без рекламы, если возникает ошибка
+    console.log("AdsManager could not be started");
+    elVideo.play();
+  }
+}
+
+function onAdsManagerLoaded(adsManagerLoadedEvent) {
+  
+  let adsRenderingSettings = new google.ima.AdsRenderingSettings();
+  // Указывает, должен ли SDK восстанавливать пользовательское состояние воспроизведения после завершения рекламной паузы
+  adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = true;
+
+  // Указываем elVideo, как видео контент
+  adsManager = adsManagerLoadedEvent.getAdsManager(elVideo, adsRenderingSettings);
+
+
+  // Добавление слушателей adsManager к необходимым событиям
+  adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
+  adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, onContentPauseRequested);
+  adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, onContentResumeRequested);
+  adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAdEvent);
+  adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, onAdEvent);
+  adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, onAdEvent);
+  adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, onAdEvent);
+
+}
+
+function onAdError(adErrorEvent) {
+  // Выводим ошибку и сварачиваем AdsManager.
+  console.log(adErrorEvent.getError());
+  if (adsManager) {
+    adsManager.destroy();
+  }
+
+}
+
+function onContentPauseRequested() {
+  elVideo.pause();
+}
+
+function onContentResumeRequested() {
+  elVideo.play();
+}
+
+function adContainerClick(event) {
+  console.log("ad container clicked");
+  if (elVideo.paused) {
+    elVideo.play();
+  } else {
+    elVideo.pause();
+  }
+}
+
+
+// Cобытия при изменении состояния рекламного объявления и при взаимодействии пользователей с объявлением.
+
+function onAdEvent(adEvent) {
+  // Извлеките объявление из события. Некоторые события (например, ALL_ADS_COMPLETED) не связаны с объектом ad.
+  let ad = adEvent.getAd();
+  switch (adEvent.type) {
+    case google.ima.AdEvent.Type.LOADED:
+      // Это первое событие, отправленное для объявления - можно определить, является ли объявление видеорекламой или overlay.
+      if (!ad.isLinear()) {
+        // Правильно расположите AdDisplayContainer для наложения.
+        // Использовать ad.width и ad.height.
+        elVideo.play();
+      }
+      break;
+    case google.ima.AdEvent.Type.STARTED:
+      // Этот ивент говорит о начале рекламы - 
+      // видеоплеер может настроить пользовательский интерфейс, 
+      // например отобразить кнопку паузы и оставшееся время.
+
+      // Скрываем панель управления плеером и лого, показываем счетчик времени
+      logoIcon.style.display = 'none';
+      panelControls.style.display = 'none';
+      countdownUi.style.display = 'flex';
+      if (ad.isLinear()) {
+        // Для линейного объявления можно запускаемё таймер для опроса оставшегося времени.
+        intervalTimer = setInterval(
+          function () {
+            let remainingTime = adsManager.getRemainingTime();
+            countdownUi.innerHTML = 'Осталось: ' + parseInt(remainingTime);
+          },
+          300);
+
+      }
+      break;
+    case google.ima.AdEvent.Type.COMPLETE:
+      // Этот ивент о завершении рекламы 
+      // можно удалить элементы рекламы 
+      countdownUi.style.display = 'none';
+      panelControls.style.display = 'flex';
+      logoIcon.style.display = 'flex';
+      if (ad.isLinear()) {
+        clearInterval(intervalTimer);
+      }
+      break;
+  }
+}
+
+
+

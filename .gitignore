@@ -1,2 +1,8 @@
 /.idea/
 /.vscode/
+/js/materialize.js
+/js/materialize.min.js
+/js/test.js
+/js/vpaid.js
+/css/materialize.css
+/css/materialize.min.css

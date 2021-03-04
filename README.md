@@ -8,12 +8,21 @@
     <br>
 </p>
 
-## Table of Contents
+## Содержание
 - [Documentation](#documentation)
 - [Testing](#testing)
 
-
 ## Documentation
+### Плеер
+- [Начало](#Начало)
+  - [Управление плеером] (#Управление-плеером)
+- [Testing](#testing)
+
+### Начало
+Основным рабочим файлом является ads.js
+
+### Управление плеером
+
 
 ## Testing
 Текущая рабочая версия плеера: https://greezlyzavr.github.io/player-dev/ .
