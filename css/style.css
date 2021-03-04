@@ -1,127 +1,3 @@
-/* #page-content {
-  position: relative;
-  /* this element's width controls the effective height */
-  /* of the video container's padding-bottom */
-  /* max-width: 640px;
-  margin: 10px auto;
-  overflow: hidden;
-} */
-
-/* #video-container {
-  position: relative; */
-  /* forces the container to match a 16x9 aspect ratio */
-  /* replace with 75% for a 4:3 aspect ratio, if needed */
-  /* padding-bottom: 56.25%; */
-  /* position: relative; */
-/* } */
-
-/* #video-element { */
-  /* forces the contents to fill the container */
-  /* position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%; */
-  /* margin-bottom: 0px; */
-/* } */
-
-/* #ad-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-}
-
-#pause-button {
-  display: none;
-
-}
-
-#play-button {
-  display: inline-block;
-
-}  */
-
-/* .menuPosition{
-    position: absolute;
-    bottom: 0;
-    left: 0;
-
-    margin-bottom: 0px;
-  } */
-
-
-/* #mainContainer {
-    position: relative;
-    width: 640px;
-    height: 360px;
-  }
-  
-  #content, #adContainer2 {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 640px;
-    height: 360px;
-  }
-  
-  #contentElement {
-    width: 640px;
-    height: 360px;
-    overflow: hidden;
-  }
-  
-  #playButton {
-    margin-top:-10px;
-    vertical-align: top;
-    width: 350px;
-    height: 60px;
-    padding: 0;
-    font-size: 22px;
-    color: white;
-    text-align: center;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-    background: #2c3e50;
-    border: 0;
-    border-bottom: 2px solid #22303f;
-    cursor: pointer;
-    -webkit-box-shadow: inset 0 -2px #22303f;
-    box-shadow: inset 0 -2px #22303f;
-    float: left;
-  }
-  
-  #countdownUi2 {
-    margin-left: 10px;
-    margin-right: 10px;
-    margin-top: 10px;
-    float: left;
-    text-align: center;
-    width: 270px;
-    height: 60px;
-    line-height: 60px;
-  }
-
-  #Bar{
-    width: 100%;
-    height: 10px;
-    background:rgba(0, 0, 0, 0.25);
-    border-radius: 2.5px;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  #progressBar{
-    width: 100%;
-    height: 10px;
-    background:rgba(241, 241, 241, 0.9);
-    border-radius: 2.5px;
-    overflow: hidden;
-    left: -100%;
-    position: absolute;
-    -webkit-transform: translate(0%); 
-    -o-transform: translate(0%);      
-    transform: translate(0%);         
-   }  */
 
 
 .container{
@@ -150,7 +26,7 @@
 }
 
 .p__soundOff {
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   height: 100%;
@@ -163,7 +39,7 @@
 }
 
 .p__soundOn {
-  display: none;
+  display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
@@ -263,18 +139,21 @@ margin: 10px;
   width: 100%;
 }
 
-.videoTrack {
+.timeFull {
   display: flex;
   height: 5px;
   width: 100%;
   background-color: #b6b6b6;
   cursor: pointer;
+  border-radius: 5px;
+  margin: 0 5px;
 }
 
 .timeLine {
   height: 5px;
   width: 0;
-  background-color: #58b4ff
+  background-color: #58b4ff;
+  border-radius: 5px;
 }
 
 .panelControls{
@@ -314,3 +193,39 @@ width: 7%;
   color: #c5c5c5;
 }
 
+.volumeBar{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 10%;
+}
+
+.volumeFull{
+  display: flex;
+  height: 5px;
+  width: 100%;
+  background-color: #b6b6b6;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 0 10px 0 5px;
+}
+
+.volumeLine{
+  height: 5px;
+  width: 100%;
+  background-color: #58b4ff;
+  border-radius: 5px;
+}
+
+
+.el-logo{
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 7.5%;
+  margin: 10px 10px 0 0 ;
+}
+
+  .p__logo{
+    width: 100%;
+  }
