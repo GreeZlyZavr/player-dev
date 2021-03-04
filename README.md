@@ -9,20 +9,21 @@
 </p>
 
 ## Содержание
-- [Documentation](#documentation)
-- [Testing](#testing)
+- <a href="#documentation">Documentation</a>
+- <a href="#testing">Testing</a>
 
-## Documentation
+## [Documentation](#documentation)
 ### Плеер
-- [Начало](#Начало)
-  - [Управление плеером] (#Управление-плеером)
-- [Testing](#testing)
+* [Начало](#Начало)
+  + [Управление плеером] (#Управление-плеером)
+  + 
+* [Testing](#testing)
 
 ### Начало
 Основным рабочим файлом является ads.js
 
 ### Управление плеером
-
+Основной обработчик событий window.addEventListener('load', function (event) {});. В нем содержатся обработчики, связанные с визуальным представлением плеера и обьявления элементов управления. 
 
 ## Testing
 Текущая рабочая версия плеера: https://greezlyzavr.github.io/player-dev/ .

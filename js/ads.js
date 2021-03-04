@@ -34,6 +34,7 @@ window.addEventListener('load', function (event) {
   logoIcon = document.getElementById('el-logoIcon');
 
   initializeIMA();
+
   elVideo.addEventListener('play', function (event) {
     loadAds(event);
   });
