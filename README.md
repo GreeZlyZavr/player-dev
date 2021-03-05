@@ -3,8 +3,6 @@
     <img src="img/surfy_logo.png" width="150">
   </a>
   <h3 align="center">Player Surfy</h3>
-  <p align="center">
-    Видеоплеер Surfy
     <br>
 </p>
 
@@ -14,15 +12,15 @@
 
 ## [Documentation][#documentation]
 ### Плеер
-* [Начало](#Beginning)
-  * [Управление плеером](#playerControl)
+* [Начало](#Начало)
+  * [Управление плеером](#Управление-плеером)
   * [Функции управления видео-контентом](#playerControlFunctions)
 * [Testing](#testing)
 
-### [Начало][#Beginning]
+### Начало
 Основным рабочим файлом является ads.js в папке js. Для воспроизведения рекламы используется GOOGLE IMA SDK.
 
-[Управление плеером][#playerControl]
+### Управление плеером
 Основной обработчик событий window.addEventListener('load', function (event) {});. В нем содержатся обработчики, связанные с визуальным представлением плеера и обьявления элементов управления. 
 
 ```js
