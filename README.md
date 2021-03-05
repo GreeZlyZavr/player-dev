@@ -316,6 +316,7 @@ function onAdEvent(adEvent) {
 
 ### Дополнительные функции
 
+```js
 function onAdError(adErrorEvent) {
   // Выводим ошибку и сварачиваем AdsManager.
   console.log(adErrorEvent.getError());
@@ -341,9 +342,10 @@ function adContainerClick(event) {
     elVideo.pause();
   }
 }
+```
 
 ## Ссылки
-Текущая рабочая версия плеера: (Клац)[https://greezlyzavr.github.io/player-dev/]
-GOOGLE IMA SDK справочник: (Клац)[https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/reference/js?hl=hi] 
+Текущая рабочая версия плеера: [https://greezlyzavr.github.io/player-dev/](Клац)
+GOOGLE IMA SDK справочник: [https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/reference/js?hl=hi](Клац) 
 
 
