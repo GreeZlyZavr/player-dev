@@ -345,7 +345,7 @@ function adContainerClick(event) {
 ```
 
 ## Ссылки
-Текущая рабочая версия плеера: [https://greezlyzavr.github.io/player-dev/](Клац)
-GOOGLE IMA SDK справочник: [https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/reference/js?hl=hi](Клац) 
+Текущая рабочая версия плеера: https://greezlyzavr.github.io/player-dev/
+GOOGLE IMA SDK справочник: https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/reference/js?hl=hi 
 
 
