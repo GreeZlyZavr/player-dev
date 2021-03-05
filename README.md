@@ -9,20 +9,20 @@
 </p>
 
 ## Содержание
-- <a href="#documentation">Documentation</a>
-- <a href="#testing">Testing</a>
+- [Documentation](#documentation)
+- [Testing](#Testing)
 
-## [Documentation](#documentation)
+## [Documentation][#documentation]
 ### Плеер
 * [Начало](#Beginning)
-  + [Управление плеером](#playerControl)
-  + [Функции управления видео-контентом](#playerControlFunctions)
+  * [Управление плеером](#playerControl)
+  * [Функции управления видео-контентом](#playerControlFunctions)
 * [Testing](#testing)
 
-<h3><a name="#Beginning">Начало</a></h3>
+### [Начало][#Beginning]
 Основным рабочим файлом является ads.js в папке js. Для воспроизведения рекламы используется GOOGLE IMA SDK.
 
-<h3><a name="#playerControl">Управление плеером</a></h3>
+[Управление плеером][#playerControl]
 Основной обработчик событий window.addEventListener('load', function (event) {});. В нем содержатся обработчики, связанные с визуальным представлением плеера и обьявления элементов управления. 
 
 ```js
@@ -69,7 +69,7 @@ window.addEventListener('load', function (event) {
 
 });
 ```
-<h3><a name="#playerControlFunctions">Функции управления видео-контентом</a></h3>
+### [Функции управления видео-контентом][#playerControlFunctions]
 Простые функции монипулирования видео-контентом: play, pause, mute, unmute.
 ```js
 function mute() {
