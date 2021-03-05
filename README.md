@@ -7,15 +7,19 @@
 </p>
 
 ## Содержание
-- [Documentation](#documentation)
-- [Testing](#Testing)
+- [Документация](#Документация)
+- [Ссылки](#Ссылки)
 
-## [Documentation][#documentation]
+## Документация
 ### Плеер
 * [Начало](#Начало)
-  * [Управление плеером](#Управление-плеером)
-  * [Функции управления видео-контентом](#playerControlFunctions)
-* [Testing](#testing)
+   * [Управление плеером](#Управление-плеером)
+      * [Функции управления видео-контентом](#Функции-управления-видео-контентом)
+      * [Функция перевода секунд во время](Функция-перевода-секунд-во-время)
+   * [GOOGLE IMA SDK И РЕКЛАМА](GOOGLE-IMA-SDK-И-РЕКЛАМА)
+      * [Инициализация GOOGLE IMA SDK](Инициализация-GOOGLE-IMA-SDK)
+      * [Запуск рекламного проигрователя](Запуск-рекламного-проигрователя) 
+* [Ссылки](#Ссылки)
 
 ### Начало
 Основным рабочим файлом является ads.js в папке js. Для воспроизведения рекламы используется GOOGLE IMA SDK.
@@ -67,8 +71,9 @@ window.addEventListener('load', function (event) {
 
 });
 ```
-### [Функции управления видео-контентом][#playerControlFunctions]
+### Функции управления видео-контентом
 Простые функции монипулирования видео-контентом: play, pause, mute, unmute.
+
 ```js
 function mute() {
   // adsManager.setVolume(0); 
@@ -101,7 +106,8 @@ function pause() {
 };
 ```
 
-Функция перевода секунд во время.
+### Функция перевода секунд во время.
+
 ```js
  // Рассчет отображаемого времени
   function secondsToTime(time) {
@@ -135,7 +141,124 @@ function pause() {
 
 ```
 
-## [Testing](#Testing)
+## GOOGLE IMA SDK И РЕКЛАМА
+Эта часть плеера работает IMA SDK, который подгружается по ссылке в файле index.html.
+
+### Инициализация GOOGLE IMA SDK
+В функции initializeIMA() задается контейнер для проигрывания рекламы, URL-адрес рекламного тега, который запрашивается с рекламного сервера
+
+```js
+// ------ GOOGLE IMA SDK И РЕКЛАМА ------
+
+// Метод инициализации Google IMA SDK
+function initializeIMA() {
+
+  console.log("initializing IMA");
+  adContainer = document.getElementById('el-ad'); // Контейнер для проигрывания рекламы
+  countdownUi = document.getElementById('countdownUi'); // Счетчик времени рекламы
+  adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, elVideo); // Контейнер, в котором будет отображаться реклама
+  adsLoader = new google.ima.AdsLoader(adDisplayContainer); // AdsLoader для запроса рекламы с серверов объявлений
+
+  // Обработчики AdsLoader
+  adsLoader.addEventListener(
+    google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+    onAdsManagerLoaded,
+    false);
+  adsLoader.addEventListener(
+    google.ima.AdErrorEvent.Type.AD_ERROR,
+    onAdError,
+    false);
+
+  // Сообщяем AdsLoader, когда видео закончится
+  elVideo.addEventListener('ended', function () {
+    adsLoader.contentComplete();
+  });
+
+  // Свойства запроса объявления
+  adsRequest = new google.ima.AdsRequest(); 
+
+  // URL-адрес рекламного тега, который запрашивается с рекламного сервера
+  adsRequest.adTagUrl = 'http://dsp-eu.surfy.tech/bid/vast-container?ssp=6';
+
+
+  // Указываем линейные и нелинейные размеры слотов.
+  adsRequest.linearAdSlotWidth = elVideo.clientWidth;
+  adsRequest.linearAdSlotHeight = elVideo.clientHeight;
+  adsRequest.nonLinearAdSlotWidth = elVideo.clientWidth;
+  adsRequest.nonLinearAdSlotHeight = elVideo.clientHeight / 3;
+
+  // Делаем контейнер кликабельным
+  adContainer.addEventListener('click', adContainerClick); 
+
+  // Передаем запрос в adsLoader для запроса рекламы
+  adsLoader.requestAds(adsRequest);
+
+}
+```
+
+### Запуск рекламного проигрователя 
+Функция loadAds() запускает проигрывания рекламы adsManager, по нажатию кнопки play (см. [Управление плеером](#Управление-плеером)). 
+
+```js
+function loadAds(event) {
+  // Эта функция не работает, если уже загружены объявления
+  if (adsLoaded) {
+    return;
+  }
+  adsLoaded = true;
+
+  // Не запускаем немедленное воспроизведение при загрузке рекламы
+  // event.preventDefault(); ???
+  console.log("loading ads");
+
+  // Инициализирует контейнер. !!! Должно быть сделано с помощью действия пользователя на мобильных устройствах !!!
+  elVideo.load();
+  adDisplayContainer.initialize();
+  let width = elVideo.clientWidth;
+  let height = elVideo.clientHeight;
+
+  try {
+    // Инициализируйте ads manager. В это время начнется плейлист рекламы по правилам ad rules.
+    adsManager.init(width, height, google.ima.ViewMode.NORMAL);  
+    console.log("AdsManager started");
+    // Play, чтобы начать показывать рекламу. В это время будут запущены одиночные видео-и оверлейные объявления; вызов будет проигнорирован для ad rules.
+    adsManager.start();
+  } catch (adError) {
+    // Воспроизведение видео без рекламы, если возникает ошибка
+    console.log("AdsManager could not be started");
+    elVideo.play();
+  }
+}
+```
+
+Функция onAdsManagerLoaded() отслеживает события adsManager, такие как STARTED, LOADED, ALL_ADS_COMPLETED и т.д.
+
+```js
+
+// Отслежываем события для adsManager
+function onAdsManagerLoaded(adsManagerLoadedEvent) {
+  
+  let adsRenderingSettings = new google.ima.AdsRenderingSettings();
+  // Указывает, должен ли SDK восстанавливать пользовательское состояние воспроизведения после завершения рекламной паузы
+  adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = true;
+
+  // Указываем elVideo, как видео контент
+  adsManager = adsManagerLoadedEvent.getAdsManager(elVideo, adsRenderingSettings);
+
+
+  // Добавление слушателей adsManager к необходимым событиям
+  adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
+  adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, onContentPauseRequested);
+  adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, onContentResumeRequested);
+  adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAdEvent);
+  adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, onAdEvent);
+  adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, onAdEvent);
+  adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, onAdEvent);
+
+}
+```
+
+## Ссылки
 Текущая рабочая версия плеера: https://greezlyzavr.github.io/player-dev/ .
 
 
