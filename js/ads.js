@@ -36,6 +36,7 @@ window.addEventListener('load', function (event) {
   initializeIMA();
 
   elVideo.addEventListener('play', function (event) {
+    console.log(event);
     loadAds(event);
   });
 
@@ -170,13 +171,13 @@ function pause() {
 
 // ------ GOOGLE IMA SDK И РЕКЛАМА ------
 
-// метод инициализации Google IMA SDK
+// Метод инициализации Google IMA SDK
 function initializeIMA() {
 
   console.log("initializing IMA");
   adContainer = document.getElementById('el-ad'); // Контейнер для проигрывания рекламы
   countdownUi = document.getElementById('countdownUi'); // Счетчик времени рекламы
-  adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, elVideo); // Контейнер, в котором будет отображаться реклама
+  adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, elVideo); // Определяем новый контейнер, в котором будет отображаться реклама
   adsLoader = new google.ima.AdsLoader(adDisplayContainer); // AdsLoader для запроса рекламы с серверов объявлений
 
   // Обработчики AdsLoader
@@ -215,6 +216,8 @@ function initializeIMA() {
 
 }
 
+//Функция запуска проигрывания рекламы adsManager
+
 function loadAds(event) {
   // Эта функция не работает, если уже загружены объявления
   if (adsLoaded) {
@@ -226,14 +229,11 @@ function loadAds(event) {
   // event.preventDefault(); ???
   console.log("loading ads");
 
-  // Инициализируtv контейнер. !!! Должно быть сделано с помощью действия пользователя на мобильных устройствах !!!
+  // Инициализирует контейнер. !!! Должно быть сделано с помощью действия пользователя на мобильных устройствах !!!
   elVideo.load();
   adDisplayContainer.initialize();
-
   let width = elVideo.clientWidth;
   let height = elVideo.clientHeight;
-
-
 
   try {
     // Инициализируйте ads manager. В это время начнется плейлист рекламы по правилам ad rules.
@@ -247,6 +247,8 @@ function loadAds(event) {
     elVideo.play();
   }
 }
+
+// Отслежываем события для adsManager. Событие возникает, когда объявления успешно загружаются с серверов объявлений через AdsLoader.
 
 function onAdsManagerLoaded(adsManagerLoadedEvent) {
   
@@ -267,32 +269,6 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
   adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, onAdEvent);
   adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, onAdEvent);
 
-}
-
-function onAdError(adErrorEvent) {
-  // Выводим ошибку и сварачиваем AdsManager.
-  console.log(adErrorEvent.getError());
-  if (adsManager) {
-    adsManager.destroy();
-  }
-
-}
-
-function onContentPauseRequested() {
-  elVideo.pause();
-}
-
-function onContentResumeRequested() {
-  elVideo.play();
-}
-
-function adContainerClick(event) {
-  console.log("ad container clicked");
-  if (elVideo.paused) {
-    elVideo.play();
-  } else {
-    elVideo.pause();
-  }
 }
 
 
@@ -344,4 +320,28 @@ function onAdEvent(adEvent) {
 }
 
 
+function onAdError(adErrorEvent) {
+  // Выводим ошибку и сварачиваем AdsManager.
+  console.log(adErrorEvent.getError());
+  if (adsManager) {
+    adsManager.destroy();
+  }
 
+}
+
+function onContentPauseRequested() {
+  elVideo.pause();
+}
+
+function onContentResumeRequested() {
+  elVideo.play();
+}
+
+function adContainerClick(event) {
+  console.log("ad container clicked");
+  if (elVideo.paused) {
+    elVideo.play();
+  } else {
+    elVideo.pause();
+  }
+}
