@@ -12,16 +12,19 @@
 
 ## Документация
 ### Плеер
-* [Начало](#Начало)
+* [Плеер](#Плеер)
     * [Управление плеером](#Управление-плеером)
         * [Функции управления видео-контентом](#Функции-управления-видео-контентом)
         * [Функция перевода секунд во время](#Функция-перевода-секунд-во-время)
     * [GOOGLE IMA SDK И РЕКЛАМА](#GOOGLE-IMA-SDK-И-РЕКЛАМА)
         * [Инициализация GOOGLE IMA SDK](#Инициализация-GOOGLE-IMA-SDK)
         * [Запуск рекламного проигрователя](#Запуск-рекламного-проигрователя) 
+        * [Обработка событий adsManager](#Обработка-событий-adsManager)
+        * [Обработка событий объявлений AdEvent](#Обработка-событий-объявлений-AdEvent)
+        * [Дополнительные функции](#Дополнительные-функции)
 * [Ссылки](#Ссылки)
 
-### Начало
+### Плеер
 Основным рабочим файлом является ads.js в папке js. Для воспроизведения рекламы используется GOOGLE IMA SDK.
 
 ### Управление плеером
@@ -231,11 +234,12 @@ function loadAds(event) {
 }
 ```
 
-Функция onAdsManagerLoaded() отслеживает события adsManager, такие как STARTED, LOADED, ALL_ADS_COMPLETED и т.д.
+### Обработка событий adsManager
+Функция onAdsManagerLoaded() отслеживает события adsManager, такие как STARTED, LOADED, ALL_ADS_COMPLETED и т.д. 
 
 ```js
 
-// Отслежываем события для adsManager
+// Отслежываем события для adsManager. Событие возникает, когда объявления успешно загружаются с серверов объявлений через AdsLoader.
 function onAdsManagerLoaded(adsManagerLoadedEvent) {
   
   let adsRenderingSettings = new google.ima.AdsRenderingSettings();
@@ -258,7 +262,88 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
 }
 ```
 
+### Обработка событий объявлений AdEvent
+Функция для обработки событий AdEvent. Этот тип события вызывается объявлением как уведомление при изменении состояния объявления и при взаимодействии пользователей с объявлением.
+
+```js
+// Cобытия при изменении состояния рекламного объявления и при взаимодействии пользователей с объявлением.
+
+function onAdEvent(adEvent) {
+  // Извлеките объявление из события. Некоторые события (например, ALL_ADS_COMPLETED) не связаны с объектом ad.
+  let ad = adEvent.getAd();
+  switch (adEvent.type) {
+    case google.ima.AdEvent.Type.LOADED:
+      // Это первое событие, отправленное для объявления - можно определить, является ли объявление видеорекламой или overlay.
+      if (!ad.isLinear()) {
+        // Правильно расположите AdDisplayContainer для наложения.
+        // Использовать ad.width и ad.height.
+        elVideo.play();
+      }
+      break;
+    case google.ima.AdEvent.Type.STARTED:
+      // Этот ивент говорит о начале рекламы - 
+      // видеоплеер может настроить пользовательский интерфейс, 
+      // например отобразить кнопку паузы и оставшееся время.
+
+      // Скрываем панель управления плеером и лого, показываем счетчик времени
+      logoIcon.style.display = 'none';
+      panelControls.style.display = 'none';
+      countdownUi.style.display = 'flex';
+      if (ad.isLinear()) {
+        // Для линейного объявления можно запускаемё таймер для опроса оставшегося времени.
+        intervalTimer = setInterval(
+          function () {
+            let remainingTime = adsManager.getRemainingTime();
+            countdownUi.innerHTML = 'Осталось: ' + parseInt(remainingTime);
+          },
+          300);
+
+      }
+      break;
+    case google.ima.AdEvent.Type.COMPLETE:
+      // Этот ивент о завершении рекламы 
+      // можно удалить элементы рекламы 
+      countdownUi.style.display = 'none';
+      panelControls.style.display = 'flex';
+      logoIcon.style.display = 'flex';
+      if (ad.isLinear()) {
+        clearInterval(intervalTimer);
+      }
+      break;
+  }
+}
+```
+
+### Дополнительные функции
+
+function onAdError(adErrorEvent) {
+  // Выводим ошибку и сварачиваем AdsManager.
+  console.log(adErrorEvent.getError());
+  if (adsManager) {
+    adsManager.destroy();
+  }
+
+}
+
+function onContentPauseRequested() {
+  elVideo.pause();
+}
+
+function onContentResumeRequested() {
+  elVideo.play();
+}
+
+function adContainerClick(event) {
+  console.log("ad container clicked");
+  if (elVideo.paused) {
+    elVideo.play();
+  } else {
+    elVideo.pause();
+  }
+}
+
 ## Ссылки
-Текущая рабочая версия плеера: https://greezlyzavr.github.io/player-dev/ .
+Текущая рабочая версия плеера: (Клац)[https://greezlyzavr.github.io/player-dev/]
+GOOGLE IMA SDK справочник: (Клац)[https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/reference/js?hl=hi] 
 
 
