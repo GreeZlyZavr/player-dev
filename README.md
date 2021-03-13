@@ -32,6 +32,27 @@
 
 ```js
 
+const configUrl = 'http://videoima.ru/config.json'; // Адрес config.json
+let elVideo;
+let elPlay;
+let elPause;
+let elSoundOn;
+let elSoundOff;
+let adsLoaded = false;
+let adContainer;
+let adDisplayContainer;
+let adsLoader;
+let adsManager;
+let adsRequest;
+let countdownUi;
+let duration;
+let timeFull;
+let timeLine;
+let controls;
+let logoIcon;
+let config;
+let request;
+
 // Событие срабатывает при полной загрузке страницы
 
   // Инициализация плеера

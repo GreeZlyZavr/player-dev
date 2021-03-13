@@ -1,3 +1,4 @@
+const configUrl = 'http://videoima.ru/config.json';
 let elVideo;
 let elPlay;
 let elPause;
@@ -16,7 +17,6 @@ let timeLine;
 let controls;
 let logoIcon;
 let config;
-const configUrl = 'http://videoima.ru/config.json';
 let request;
 
 
