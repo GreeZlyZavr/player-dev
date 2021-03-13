@@ -28,30 +28,50 @@
 Основным рабочим файлом является ads.js в папке js. Для воспроизведения рекламы используется GOOGLE IMA SDK.
 
 ### Управление плеером
-Основной обработчик событий window.addEventListener('load', function (event) {});. В нем содержатся обработчики, связанные с визуальным представлением плеера и обьявления элементов управления. 
+Основная фукция инициализации плеера init(). В ней содержатся обработчики, связанные с визуальным представлением плеера и обьявления элементов управления. 
 
 ```js
 
-  // Событие срабатывает при полной загрузке страницы
-window.addEventListener('load', function (event) {
+// Событие срабатывает при полной загрузке страницы
 
-  elPlay = document.getElementById('el-play'); // Кнопка play
-  elPause = document.getElementById('el-pause'); // Кнопка pause
-  elSoundOn = document.getElementById('el-soundOn'); // Кнопка mute
-  elSoundOff = document.getElementById('el-soundOff'); // Кнопка unmute
-  timePicker = document.getElementById('timer'); // Отображает текущее время проигрования
-  elVideo = document.getElementById('el-video'); // Место размещения основного видео
-  duration = document.getElementById('duration'); // Полное время отображения времени
-  timeFull = document.querySelector('.timeFull'); // Полная полоса прогресса видео
-  timeLine = document.querySelector('.timeLine'); // Полоса текущего времени видео
-  panelControls = document.querySelector('.panelControls'); // Панель со всеми кнопками
-  logoIcon = document.getElementById('el-logoIcon');
-
-  initializeIMA();
-
-  elVideo.addEventListener('play', function (event) {
-    loadAds(event);
-  });
+  // Инициализация плеера
+  function init(){
+    elPlay = document.getElementById('el-play'); // Кнопка play
+    elPause = document.getElementById('el-pause'); // Кнопка pause
+    elSoundOn = document.getElementById('el-soundOn'); // Кнопка mute
+    elSoundOff = document.getElementById('el-soundOff'); // Кнопка unmute
+    timePicker = document.getElementById('timer'); // Отображает текущее время проигрования
+    elVideo = document.getElementById('el-video'); // Место размещения основного видео
+    duration = document.getElementById('duration'); // Полное время отображения времени
+    timeFull = document.querySelector('.timeFull'); // Полная полоса прогресса видео
+    timeLine = document.querySelector('.timeLine'); // Полоса текущего времени видео
+    panelControls = document.querySelector('.panelControls'); // Панель со всеми кнопками
+    logoIcon = document.getElementById('el-logoIcon');
+  
+    elVideo.addEventListener('play', function (event) {
+      loadAds(event);
+    });
+  
+    // Событие срабатывает, когда видео готово к воспроизведению
+    elVideo.addEventListener('canplay', function () {
+      // Добавляем продолжительность видео контента
+      duration.innerHTML = secondsToTime(elVideo.duration);
+    });
+  
+    // Событие срабатывает, когда изменяется текущее время видео
+    elVideo.addEventListener('timeupdate', function () {
+      // Делаем подвижной полосу текущего времени видео
+      timePicker.innerHTML = secondsToTime(elVideo.currentTime);
+      timeLine.style.width = (parseInt(elVideo.currentTime) / parseInt(elVideo.duration)) * 100 + '%';
+    }, false);
+  
+    // События для кнопок упраления
+    elSoundOn.addEventListener('click', () => mute());
+    elSoundOff.addEventListener('click', () => unmute());
+    elPlay.addEventListener('click', () => play());
+    elPause.addEventListener('click', () => pause());
+  
+  }
 
   // Событие срабатывает, когда видео готово к воспроизведению
   elVideo.addEventListener('canplay', function () {
@@ -71,9 +91,8 @@ window.addEventListener('load', function (event) {
   elSoundOff.addEventListener('click', () => unmute());
   elPlay.addEventListener('click', () => play());
   elPause.addEventListener('click', () => pause());
-
-});
 ```
+
 ### Функции управления видео-контентом
 Простые функции монипулирования видео-контентом: play, pause, mute, unmute.
 
@@ -153,13 +172,14 @@ function pause() {
 ```js
 // ------ GOOGLE IMA SDK И РЕКЛАМА ------
 
+
 // Метод инициализации Google IMA SDK
-function initializeIMA() {
+async function initializeIMA() {
 
   console.log("initializing IMA");
   adContainer = document.getElementById('el-ad'); // Контейнер для проигрывания рекламы
   countdownUi = document.getElementById('countdownUi'); // Счетчик времени рекламы
-  adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, elVideo); // Контейнер, в котором будет отображаться реклама
+  adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, elVideo); // Определяем новый контейнер, в котором будет отображаться реклама
   adsLoader = new google.ima.AdsLoader(adDisplayContainer); // AdsLoader для запроса рекламы с серверов объявлений
 
   // Обработчики AdsLoader
@@ -176,13 +196,14 @@ function initializeIMA() {
   elVideo.addEventListener('ended', function () {
     adsLoader.contentComplete();
   });
-
+  
+  // URL-адрес рекламного тега, который запрашивается с рекламного сервера
+  const jsonConfig = await getVastUrl(configUrl);
+  
   // Свойства запроса объявления
   adsRequest = new google.ima.AdsRequest(); 
-
-  // URL-адрес рекламного тега, который запрашивается с рекламного сервера
-  adsRequest.adTagUrl = 'http://dsp-eu.surfy.tech/bid/vast-container?ssp=6';
-
+  adsRequest.adTagUrl = jsonConfig.vastUrl;
+  
 
   // Указываем линейные и нелинейные размеры слотов.
   adsRequest.linearAdSlotWidth = elVideo.clientWidth;
@@ -197,6 +218,7 @@ function initializeIMA() {
   adsLoader.requestAds(adsRequest);
 
 }
+
 ```
 
 ### Запуск рекламного проигрователя
@@ -342,6 +364,17 @@ function adContainerClick(event) {
     elVideo.pause();
   }
 }
+
+// Асинхронный запроз рекламной ссылки с config.json
+async function getVastUrl(url){
+  console.log("fetching...");
+    const response = await fetch(url);
+    const data = await response.json()
+    console.log(data.vastUrl);
+    return data;
+
+}
+
 ```
 
 ## Ссылки
