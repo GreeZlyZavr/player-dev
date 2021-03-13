@@ -15,98 +15,23 @@ let timeFull;
 let timeLine;
 let controls;
 let logoIcon;
+let config;
+const configUrl = 'http://videoima.ru/config.json';
+let request;
+
 
 // ------ ЭЛЕМЕНТЫ УПРАВЛЕНИЯ ПЛЕЕРА ------
 
 // Событие срабатывает при полной загрузке страницы
 window.addEventListener('load', function (event) {
 
-  elPlay = document.getElementById('el-play'); // Кнопка play
-  elPause = document.getElementById('el-pause'); // Кнопка pause
-  elSoundOn = document.getElementById('el-soundOn'); // Кнопка mute
-  elSoundOff = document.getElementById('el-soundOff'); // Кнопка unmute
-  timePicker = document.getElementById('timer'); // Отображает текущее время проигрования
-  elVideo = document.getElementById('el-video'); // Место размещения основного видео
-  duration = document.getElementById('duration'); // Полное время отображения времени
-  timeFull = document.querySelector('.timeFull'); // Полная полоса прогресса видео
-  timeLine = document.querySelector('.timeLine'); // Полоса текущего времени видео
-  panelControls = document.querySelector('.panelControls'); // Панель со всеми кнопками
-  logoIcon = document.getElementById('el-logoIcon');
+ init();
 
-  initializeIMA();
-
-  elVideo.addEventListener('play', function (event) {
-    console.log(event);
-    loadAds(event);
   });
-
-  // Событие срабатывает, когда видео готово к воспроизведению
-  elVideo.addEventListener('canplay', function () {
-    // Добавляем продолжительность видео контента
-    duration.innerHTML = secondsToTime(elVideo.duration);
-  });
-
-  // Событие срабатывает, когда изменяется текущее время видео
-  elVideo.addEventListener('timeupdate', function () {
-    // Делаем подвижной полосу текущего времени видео
-    timePicker.innerHTML = secondsToTime(elVideo.currentTime);
-    timeLine.style.width = (parseInt(elVideo.currentTime) / parseInt(elVideo.duration)) * 100 + '%';
-  }, false);
-
-  // События для кнопок упраления
-  elSoundOn.addEventListener('click', () => mute());
-  elSoundOff.addEventListener('click', () => unmute());
-  elPlay.addEventListener('click', () => play());
-  elPause.addEventListener('click', () => pause());
-
-  
-  // событие срабатывает, когда изменяется размер окна
-  // !!! НЕГОТОВАЯ ЧАСТЬ КОДА !!!
-  // -- начало
-/*
-  window.addEventListener('resize', function (event) {
-    console.log("window resized");
-    console.log(adsManager);
-    if (adsManager) {
-      // изменение размера видео
-      let width = elVideo.clientWidth;
-      let height = elVideo.clientHeight;
-      adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
-    }
-  });
-
-  // событие срабатывает при клике на полосу проигрования
- 
-  timeFull.addEventListener("click", function (e) {
-    let posClientX = e.clientX; // Вычисляем позицию нажатия
-    let posBlockX = timeLine.clientX;
-    let windowWidth = window.innerWidth;
-    // let timePos = (posClientX * 100) / parseInt(timeLine.offsetWidth); // Вычисляем процент перемотки
-    let timePos = ( parseInt(posClientX) / parseInt(windowWidth) ) * 100; // Вычисляем процент перемотки
-    timeLine.style.width = timePos + '%'; // Присваиваем процент перемотки
-    console.log('windowWidth: '+ windowWidth);
-    console.log('posBlockX: '+ posBlockX);
-    console.log('posClientX: '+ posClientX);
-    // console.log('timeFull.offsetWidth: '+ timeFull.offsetWidth);
-    // console.log('timeFull.offsetWidth: '+ parseInt(timeFull.offsetWidth));
-    console.log('timePos: '+ timePos);
-    // console.log('elVideo.duration: '+ elVideo.duration);
-    // console.log('Math.round: '+ Math.round(elVideo.duration));
-    // console.log('timePos * Math.round(elVideo.duration): '+ timePos * Math.round(elVideo.duration));
-    elVideo.currentTime = (timePos / 100 * Math.round(elVideo.duration)) ; // Перематываем
-  });
-    */
-
-   // -- конец --
-
-
-
-});
 
 // Элементы управления видео
 
 function mute() {
-  // adsManager.setVolume(0); 
   elVideo.volume = 0;
   elVideo.muted = true;
   elSoundOff.style.display = 'flex';
@@ -114,7 +39,6 @@ function mute() {
 };
 
 function unmute() {
-  // adsManager.setVolume(1);
   elVideo.volume = 1;
   elVideo.muted = false;
   elSoundOff.style.display = 'none';
@@ -122,14 +46,13 @@ function unmute() {
 };
 
 function play() {
-  // adsManager.resume();
+
   elVideo.play();
   elPlay.style.display = 'none';
   elPause.style.display = 'flex';
 };
 
 function pause() {
-  // adsManager.pause();
   elVideo.pause();
   elPlay.style.display = 'flex';
   elPause.style.display = 'none';
@@ -171,8 +94,90 @@ function pause() {
 
 // ------ GOOGLE IMA SDK И РЕКЛАМА ------
 
+
+function init(){
+  elPlay = document.getElementById('el-play'); // Кнопка play
+  elPause = document.getElementById('el-pause'); // Кнопка pause
+  elSoundOn = document.getElementById('el-soundOn'); // Кнопка mute
+  elSoundOff = document.getElementById('el-soundOff'); // Кнопка unmute
+  timePicker = document.getElementById('timer'); // Отображает текущее время проигрования
+  elVideo = document.getElementById('el-video'); // Место размещения основного видео
+  duration = document.getElementById('duration'); // Полное время отображения времени
+  timeFull = document.querySelector('.timeFull'); // Полная полоса прогресса видео
+  timeLine = document.querySelector('.timeLine'); // Полоса текущего времени видео
+  panelControls = document.querySelector('.panelControls'); // Панель со всеми кнопками
+  logoIcon = document.getElementById('el-logoIcon');
+
+  elVideo.addEventListener('play', function (event) {
+    loadAds(event);
+  });
+
+  // Событие срабатывает, когда видео готово к воспроизведению
+  elVideo.addEventListener('canplay', function () {
+    // Добавляем продолжительность видео контента
+    duration.innerHTML = secondsToTime(elVideo.duration);
+  });
+
+  // Событие срабатывает, когда изменяется текущее время видео
+  elVideo.addEventListener('timeupdate', function () {
+    // Делаем подвижной полосу текущего времени видео
+    timePicker.innerHTML = secondsToTime(elVideo.currentTime);
+    timeLine.style.width = (parseInt(elVideo.currentTime) / parseInt(elVideo.duration)) * 100 + '%';
+  }, false);
+
+  // События для кнопок упраления
+  elSoundOn.addEventListener('click', () => mute());
+  elSoundOff.addEventListener('click', () => unmute());
+  elPlay.addEventListener('click', () => play());
+  elPause.addEventListener('click', () => pause());
+
+  initializeIMA();
+
+    // событие срабатывает, когда изменяется размер окна
+  // !!! НЕГОТОВАЯ ЧАСТЬ КОДА !!!
+  // -- начало
+/*
+  window.addEventListener('resize', function (event) {
+    console.log("window resized");
+    console.log(adsManager);
+    if (adsManager) {
+      // изменение размера видео
+      let width = elVideo.clientWidth;
+      let height = elVideo.clientHeight;
+      adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
+    }
+  });
+
+  // событие срабатывает при клике на полосу проигрования
+ 
+  timeFull.addEventListener("click", function (e) {
+    let posClientX = e.clientX; // Вычисляем позицию нажатия
+    let posBlockX = timeLine.clientX;
+    let windowWidth = window.innerWidth;
+    // let timePos = (posClientX * 100) / parseInt(timeLine.offsetWidth); // Вычисляем процент перемотки
+    let timePos = ( parseInt(posClientX) / parseInt(windowWidth) ) * 100; // Вычисляем процент перемотки
+    timeLine.style.width = timePos + '%'; // Присваиваем процент перемотки
+    console.log('windowWidth: '+ windowWidth);
+    console.log('posBlockX: '+ posBlockX);
+    console.log('posClientX: '+ posClientX);
+    // console.log('timeFull.offsetWidth: '+ timeFull.offsetWidth);
+    // console.log('timeFull.offsetWidth: '+ parseInt(timeFull.offsetWidth));
+    console.log('timePos: '+ timePos);
+    // console.log('elVideo.duration: '+ elVideo.duration);
+    // console.log('Math.round: '+ Math.round(elVideo.duration));
+    // console.log('timePos * Math.round(elVideo.duration): '+ timePos * Math.round(elVideo.duration));
+    elVideo.currentTime = (timePos / 100 * Math.round(elVideo.duration)) ; // Перематываем
+  });
+    */
+
+   // -- конец --
+
+
+}
+
+
 // Метод инициализации Google IMA SDK
-function initializeIMA() {
+async function initializeIMA() {
 
   console.log("initializing IMA");
   adContainer = document.getElementById('el-ad'); // Контейнер для проигрывания рекламы
@@ -194,13 +199,14 @@ function initializeIMA() {
   elVideo.addEventListener('ended', function () {
     adsLoader.contentComplete();
   });
-
+  
+  // URL-адрес рекламного тега, который запрашивается с рекламного сервера
+  const jsonConfig = await getVastUrl(configUrl);
+  
   // Свойства запроса объявления
   adsRequest = new google.ima.AdsRequest(); 
-
-  // URL-адрес рекламного тега, который запрашивается с рекламного сервера
-  adsRequest.adTagUrl = 'http://dsp-eu.surfy.tech/bid/vast-container?ssp=6';
-
+  adsRequest.adTagUrl = jsonConfig.vastUrl;
+  
 
   // Указываем линейные и нелинейные размеры слотов.
   adsRequest.linearAdSlotWidth = elVideo.clientWidth;
@@ -219,6 +225,9 @@ function initializeIMA() {
 //Функция запуска проигрывания рекламы adsManager
 
 function loadAds(event) {
+
+  
+
   // Эта функция не работает, если уже загружены объявления
   if (adsLoaded) {
     return;
@@ -345,3 +354,17 @@ function adContainerClick(event) {
     elVideo.pause();
   }
 }
+
+// Асинхронный запроз рекламной ссылки с config.json
+
+async function getVastUrl(url){
+  console.log("fetching...");
+    const response = await fetch(url);
+    const data = await response.json()
+    console.log(data.vastUrl);
+    return data;
+
+}
+
+
+   
