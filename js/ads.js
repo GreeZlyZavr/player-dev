@@ -1,4 +1,4 @@
-const configUrl = 'http://videoima.ru/config.json';
+const configUrl = '/config.json';
 let elVideo;
 let elPlay;
 let elPause;
@@ -333,7 +333,9 @@ function onAdError(adErrorEvent) {
   // Выводим ошибку и сварачиваем AdsManager.
   console.log(adErrorEvent.getError());
   if (adsManager) {
+    // console.log("onAdError: " + error.g[0]);
     adsManager.destroy();
+    elVideo.play();
   }
 
 }
