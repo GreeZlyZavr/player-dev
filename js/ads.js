@@ -1,4 +1,3 @@
-const configUrl = 'http://videoima.ru/config.json';
 let elVideo;
 let elPlay;
 let elPause;
