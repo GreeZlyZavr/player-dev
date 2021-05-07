@@ -130,7 +130,7 @@ function init() {
 
 
 
-async function initializeIMA() {
+function initializeIMA() {
 
   console.log("initializing IMA");
   adContainer = document.getElementById('el-ad');
@@ -154,13 +154,14 @@ async function initializeIMA() {
   });
 
 
-  const jsonConfig = await getVastUrl(configUrl);
+  // const jsonConfig = await getVastUrl(configUrl);
 
 
   adsRequest = new google.ima.AdsRequest();
-  adsRequest.adTagUrl = jsonConfig.vastUrl;
+  adsRequest.adTagUrl = 'https://dsp-eu.surfy.tech/bid/vast-container?ssp=6';
+  // adsRequest.adsResponse = '<VAST version="2.0"><Ad id="QZAEIEAACmdZryioYCqmNrJRDuZwtekr"><Wrapper><AdSystem><![CDATA[DSP]]></AdSystem><VASTAdTagURI><![CDATA[https://dsp-eu-lb.rtbsolutions.pro/vast?id=QZAEIEAACmdZryioYCqmNrJRDuZwtekr&w=640&h=360]]></VASTAdTagURI><Impression><![CDATA[https://dsp-eu-lb.rtbsolutions.pro/win?id=QZAEIEAACmdZryioYCqmNrJRDuZwtekr&ssp=153&campaign_id=591&price=1.00]]></Impression><Creatives><Creative AdID="QZAEIEAACmdZryioYCqmNrJRDuZwtekr"><Linear><TrackingEvents></TrackingEvents></Linear></Creative></Creatives></Wrapper></Ad></VAST>';
 
-  adsRequest.linearAdSlotWidth = elVideo.clientWidth;
+  adsRequest.linearAdSlotWidth = elVideo.clientWidth; 
   adsRequest.linearAdSlotHeight = elVideo.clientHeight;
   adsRequest.nonLinearAdSlotWidth = elVideo.clientWidth;
   adsRequest.nonLinearAdSlotHeight = elVideo.clientHeight / 3;
@@ -257,6 +258,16 @@ function onAdEvent(adEvent) {
         clearInterval(intervalTimer);
       }
       break;
+
+    case google.ima.AdEvent.Type.ALL_ADS_COMPLETED:
+      waterfall = true;
+      if (waterfall == true) {
+        
+      }
+      console.log("waterfall");
+      adsManager.destroy();
+      initializeIMA();
+    break;
   }
 }
 
